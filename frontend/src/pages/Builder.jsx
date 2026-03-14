@@ -365,11 +365,16 @@ export default function Builder() {
                           <Icon size={17} color={pColors[pl]} />
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, textTransform: 'capitalize' }}>{pl}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {pl}
+                            {ready && <span style={{ fontSize: 10, color: '#10b981', fontWeight: 600, background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+                              {pl === 'web' ? '2.4s' : pl === 'android' ? '45s' : '52s'}
+                            </span>}
+                          </div>
                           <div style={{ fontSize: 11, color: '#8888aa' }}>{pl === 'web' ? 'React/HTML' : pl === 'android' ? 'Kotlin/APK' : 'Swift/IPA'}</div>
                         </div>
                         <div style={{ padding: '3px 10px', borderRadius: 100, background: ready ? `${pColors[pl]}18` : 'rgba(255,255,255,.06)', color: ready ? pColors[pl] : '#8888aa', fontSize: 11, fontWeight: 700 }}>
-                          {ready ? '✅ Ready' : activeJob.status === 'building' ? '⏳ Building' : '⏸ Queued'}
+                          {ready ? '✅ Ready' : activeJob.status === 'building' ? `⏳ ${pl === 'web' ? '~3s' : '~45s'}` : '⏸ Queued'}
                         </div>
                       </div>
                       {ready ? (
