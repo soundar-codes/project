@@ -84,10 +84,56 @@ const useBuildTimer = (isActive, platform) => {
     return () => clearInterval(interval);
   }, [isActive, timeLeft, initialTime]);
 
-  // Format time as M:SS
+// Format time as M:SS
   const mins = Math.floor(timeLeft / 60);
   const secs = timeLeft % 60;
   return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Component for individual platform cards to safely use hooks
+const PlatformCard = ({ pl, activeJob }) => {
+  const Icon  = pIcons[pl] || Globe;
+  const ready = activeJob.status === 'success';
+  const building = activeJob.status === 'building';
+  const timeLeftStr = useBuildTimer(building, pl);
+                  
+  return (
+    <div className="card" style={{ borderColor: ready ? `${pColors[pl]}40` : undefined }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 9, background: `${pColors[pl]}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={17} color={pColors[pl]} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: 14, textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {pl}
+            {ready && <span style={{ fontSize: 10, color: '#10b981', fontWeight: 600, background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+              {pl === 'web' ? '2.4s' : pl === 'android' ? '45s' : '52s'}
+            </span>}
+          </div>
+          <div style={{ fontSize: 11, color: '#8888aa' }}>{pl === 'web' ? 'React/HTML' : pl === 'android' ? 'Kotlin/APK' : 'Swift/IPA'}</div>
+        </div>
+        <div style={{ padding: '3px 10px', borderRadius: 100, background: ready ? `${pColors[pl]}18` : 'rgba(255,255,255,.06)', color: ready ? pColors[pl] : '#8888aa', fontSize: 11, fontWeight: 700 }}>
+          {ready ? '✅ Ready' : building ? `⏳ ${timeLeftStr}` : '⏸ Queued'}
+        </div>
+      </div>
+      {ready ? (
+        pl === 'web' ? (
+          <a href={`http://localhost:5000/api/builder/preview/${activeJob._id}`} target="_blank" rel="noreferrer"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px', borderRadius: 9, border: `1px solid ${pColors[pl]}40`, background: `${pColors[pl]}0d`, color: pColors[pl], fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
+            <ExternalLink size={12} /> Live Preview
+          </a>
+        ) : (
+          <button style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px', borderRadius: 9, border: `1px solid ${pColors[pl]}40`, background: `${pColors[pl]}0d`, color: pColors[pl], fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <Download size={12} /> Download {pl === 'android' ? 'APK' : 'IPA'}
+          </button>
+        )
+      ) : (
+        <div style={{ height: 38, borderRadius: 9, background: 'rgba(255,255,255,.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#55556a', fontSize: 12 }}>
+          {activeJob.status === 'building' ? '⚡ Building...' : '⏸ Waiting...'}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default function Builder() {
